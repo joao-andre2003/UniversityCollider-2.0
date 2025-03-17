@@ -30,7 +30,6 @@ void GetInfoMedidores(Medidor* medidoresInfo, const string file)
 
         const int _FeedsId_size = _element_value[1].size();
         medidoresInfo[cnt].feedsInfo = new FeedInfo[_FeedsId_size];
-        //medidoresInfo[cnt].feedsLength = _FeedsId_size;
         cout << "Feed name: " << medidoresInfo[cnt].name << " - Feed Length: " << _FeedsId_size << endl;
 
         for (int i = 0; i < _FeedsId_size; i++) {
@@ -95,7 +94,7 @@ unsigned int GetLastTimestamp(const string* FeedId, const string* LastMetaIndex)
     readmeta.close();
     return lastTimestamp;
 }
-/*
+
 unsigned int GetDatNPoints(const string* FeedId, const string* DatIndex)
 {
     const string Path = FeedsDB_PATH + *FeedId + "\\" + *FeedId + ".dat." + *DatIndex;
@@ -105,4 +104,4 @@ unsigned int GetDatNPoints(const string* FeedId, const string* DatIndex)
     readdat.close();
     return npoints;
 }
-*/
+

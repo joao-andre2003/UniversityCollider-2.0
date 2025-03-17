@@ -28,23 +28,20 @@ const unsigned short RgtrsInfo_Harmonico[][2] = { // [0] -> register address (0 
 const unsigned short RgtrsInfo_Size = sizeof(RgtrsInfo) / sizeof(RgtrsInfo[0]);
 const unsigned short* RgtrsInfo_TwoBytes_Size = &RgtrsInfo_TwoBytes[0][RGSTR_N];
 const unsigned short RgtrsInfo_Harmonico_Size = sizeof(RgtrsInfo_Harmonico) / sizeof(RgtrsInfo_Harmonico[0]);
-unsigned short $Data_Size;
-unsigned short $Data_Harmonico_Size;
+unsigned short Data_Size;
+unsigned short Data_Harmonico_Size;
 
 void SetDataSize()
 {
     unsigned short size = 0;
     for (short i = 0; i < RgtrsInfo_Size; ++i)
         size += RgtrsInfo[i][RGSTR_N];
-    $Data_Size = size / 2.0f + .5f + *RgtrsInfo_TwoBytes_Size;
+    Data_Size = size / 2.0f + .5f + *RgtrsInfo_TwoBytes_Size;
 
     size = 0;
     for (short i = 0; i < RgtrsInfo_Harmonico_Size; ++i)
         size += RgtrsInfo_Harmonico[i][RGSTR_N];
-    $Data_Harmonico_Size = size / 2.0f + .5f + $Data_Size;
-
-    cout << "Data_Size: " << $Data_Size << endl;
-    cout << "Data_Harmonico_Size: " << $Data_Harmonico_Size << endl;
+    Data_Harmonico_Size = size / 2.0f + .5f + Data_Size;
 }
 
 static float GetFloatFromBytes(unsigned short& TwoBytes_a, unsigned short& TwoBytes_b)
@@ -98,7 +95,7 @@ bool ReadMultiMedidor(const char* Server_IP, bool* IsHarmonico, float*& data, un
         return 1;
     }
 
-    *data_size = (*IsHarmonico) ? $Data_Harmonico_Size : $Data_Size;
+    *data_size = (*IsHarmonico) ? Data_Harmonico_Size : Data_Size;
     data = new float[*data_size];
     unsigned short dataCnt = 0;
 

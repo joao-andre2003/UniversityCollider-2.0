@@ -2,7 +2,7 @@
 #include "UniversityCollider_2_0.h"
 using namespace std;
 
-string AddNewMeta(const string* FeedId, const string LastMetaIndex, unsigned* Timestamp)
+string AddNewMeta(const string* FeedId, const string LastMetaIndex, const unsigned* Timestamp)
 {
     const string Base_Path = FeedsDB_PATH + *FeedId + "\\" + *FeedId + ".meta.";
     const string NewIndex = to_string(stoi(LastMetaIndex) + 1);

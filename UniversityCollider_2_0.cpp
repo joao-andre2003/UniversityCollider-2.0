@@ -5,7 +5,7 @@
 #define MagicaGrande_PATH "MagicaGrande.json"
 using namespace std;
 
-void NewDatMeta(FeedInfo* feedInfo, unsigned* Timestamp)
+void NewDatMeta(FeedInfo* feedInfo, const unsigned* Timestamp)
 {
     feedInfo->lastDatMetaIndex = AddNewMeta(&feedInfo->feedId, GetLastMetaDatIndex(&feedInfo->feedId), Timestamp);
     AddNewDat(&feedInfo->feedId, &feedInfo->lastDatMetaIndex);
@@ -20,8 +20,8 @@ int main()
     Medidor* medidoresInfo = new Medidor[MedidoresInfo_size];
     GetInfoMedidores(medidoresInfo, MagicaGrande_PATH);
 
-    unsigned currentTimestamp = time(NULL);
-    cout << "Timestamp atual é: " << currentTimestamp << endl;
+    const unsigned CurrentTimestamp = time(NULL);
+    cout << "Timestamp atual é: " << CurrentTimestamp << endl;
 
     for (int i = 0; i < MedidoresInfo_size; ++i)
     {
@@ -41,20 +41,24 @@ int main()
 
         if (medidoresInfo[i].isInactive) {
             medidoresInfo[i].isInactive = false;
+
+            for (unsigned short j = 0; j < data_size; ++j)
+            {
+                if ((medidoresInfo[i].feedsInfo[j].nextTimestamp - NextMetaInterval) < InactiveTimeLimit)
+                    NewDatMeta(&medidoresInfo[i].feedsInfo[j], &CurrentTimestamp);
+
+            }
         }
 
-        
-        /*
-        for (unsigned short j = 0; j < medidoresInfo[i].feedsLength; ++j)
+        for (unsigned short j = 0; j < data_size; ++j)
         {
             cout << medidoresInfo[i].feedsInfo[j].feedId << " -> " << data[j] << endl;
             
+            if (medidoresInfo[i].feedsInfo[j].nextTimestamp < CurrentTimestamp)
+                NewDatMeta(&medidoresInfo[i].feedsInfo[j], &CurrentTimestamp);
 
-            //if (medidoresInfo[i].feedsInfo[j].nextTimestamp < currentTimestamp)
-            //    NewDatMeta(&medidoresInfo[i].feedsInfo[j], &currentTimestamp);
-
-            //AddNPoint()
-        }*/
+            AddNPoint(&medidoresInfo[i].feedsInfo[j].feedId, &medidoresInfo[i].feedsInfo[j].lastDatMetaIndex, data[j]);
+        }
 
         delete[] data;
     }
