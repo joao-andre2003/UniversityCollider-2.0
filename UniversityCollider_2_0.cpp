@@ -44,9 +44,15 @@ int main()
 
             for (unsigned short j = 0; j < data_size; ++j)
             {
-                if ((medidoresInfo[i].feedsInfo[j].nextTimestamp - NextMetaInterval) < InactiveTimeLimit)
+                if ((CurrentTimestamp - medidoresInfo[i].feedsInfo[j].nextTimestamp - NextMetaInterval) > InactiveTimeLimit) {
                     NewDatMeta(&medidoresInfo[i].feedsInfo[j], &CurrentTimestamp);
-
+                    continue;
+                }
+                    
+                unsigned short npoints_missing = (unsigned)(CurrentTimestamp * 1.0f/CycleInterval) - GetDatNPoints(&medidoresInfo[i].feedsInfo[j].feedId, &medidoresInfo[i].feedsInfo[j].lastDatMetaIndex);
+                for (unsigned short cnt = 1; cnt < npoints_missing; ++cnt)
+                    AddNPoint(&medidoresInfo[i].feedsInfo[j].feedId, &medidoresInfo[i].feedsInfo[j].lastDatMetaIndex, NULL);
+                AddNPoint(&medidoresInfo[i].feedsInfo[j].feedId, &medidoresInfo[i].feedsInfo[j].lastDatMetaIndex, data[j]);
             }
         }
 

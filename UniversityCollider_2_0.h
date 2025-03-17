@@ -9,6 +9,7 @@
 #define FLOATSIZE sizeof(float)
 #define NextMetaInterval 604800 // -> 1 semana em segundos
 #define InactiveTimeLimit 3600 // -> 1 hora em segundos
+#define CycleInterval 60 // -> intervalo de amostragem em segundos
 #include <iostream>
 #include<string>
 #include <fstream>
