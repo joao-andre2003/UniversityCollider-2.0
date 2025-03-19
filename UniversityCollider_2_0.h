@@ -3,15 +3,15 @@
 
 #ifndef UNIVERSITYCOLLIDER_2_0
 #define UNIVERSITYCOLLIDER_2_0
-#define FeedsDB_PATH "C:\\Users\\joaoa\\OneDrive\\Área de Trabalho\\EEMEPP\\UniversityCollider_2_0-VS\\"
-#define _FeedsDB_PATH "C:\\Users\\DELT\\Desktop\\labgd\\UniversityCollider_2_0-VS\\"
+#define _FeedsDB_PATH "C:\\Users\\joaoa\\OneDrive\\Área de Trabalho\\EEMEPP\\UniversityCollider_2_0-VS\\"
+#define FeedsDB_PATH "C:\\Users\\DELT\\Desktop\\labgd\\UniversityCollider_2_0-VS\\"
 #define INTSIZE sizeof(int)
 #define FLOATSIZE sizeof(float)
 #define NextMetaInterval 604800 // -> 1 semana em segundos
 #define InactiveTimeLimit 3600 // -> 1 hora em segundos
-#define CycleInterval 60 // -> intervalo de amostragem em segundos
+#define CycleInterval 10 // -> intervalo de amostragem em segundos
 #include <iostream>
-#include<string>
+#include <string>
 #include <fstream>
 
 struct FeedInfo {
@@ -37,5 +37,5 @@ unsigned int GetDatNPoints(const std::string* FeedId, const std::string* LastDat
 
 std::string AddNewMeta(const std::string* FeedId, const std::string LastMetaIndex, const unsigned* Timestamp);
 void AddNewDat(const std::string* FeedId, const std::string* LastDatIndex);
-void AddNPoint(const std::string* FeedId, const std::string* LastDatIndex, float Value);
+void AddNPoint(const std::string* FeedId, const std::string* LastDatIndex, float* Value, unsigned short Value_size = 1);
 #endif

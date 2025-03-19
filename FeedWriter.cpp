@@ -10,6 +10,9 @@ string AddNewMeta(const string* FeedId, const string LastMetaIndex, const unsign
     ifstream fileSrc(Base_Path + LastMetaIndex, ios::binary | ios::in);
     fstream newMeta(Base_Path + NewIndex, ios::binary | ios::out);
 
+    cout << "NEW META - " << Base_Path + NewIndex << endl;
+    cout << "TIMESTAMP - " << *Timestamp << endl;
+
     newMeta << fileSrc.rdbuf();
 
     newMeta.seekg(3 * INTSIZE, ifstream::beg);
@@ -18,19 +21,21 @@ string AddNewMeta(const string* FeedId, const string LastMetaIndex, const unsign
     return NewIndex;
 }
 
-void AddNPoint(const string* FeedId, const string* LastDatIndex, float Value)
+void AddNPoint(const string* FeedId, const string* LastDatIndex, float* Value, unsigned short Value_size)
 {
     const string Path = FeedsDB_PATH + *FeedId + "\\" + *FeedId + ".dat." + *LastDatIndex;
+    cout << "NPOINT - " << *Value << endl;
 
-    fstream file(Path, ios::binary | ios::out);
-    file.seekg(0, std::ios::end);
-    file.write(reinterpret_cast<char*>(&Value), FLOATSIZE);
+    fstream file(Path, ios::binary | ios::app);
+    file.write(reinterpret_cast<char*>(&Value[0]), FLOATSIZE * Value_size);
     file.close();
 }
 
 void AddNewDat(const string* FeedId, const string* LastDatIndex)
 {
     const string Path = FeedsDB_PATH + *FeedId + "\\" + *FeedId + ".dat." + *LastDatIndex;
+
+    cout << "NEW DAT - " << Path << endl;
 
     fstream file(Path, ios::binary | ios::out);
     file.close();

@@ -30,14 +30,16 @@ void GetInfoMedidores(Medidor* medidoresInfo, const string file)
 
         const int _FeedsId_size = _element_value[1].size();
         medidoresInfo[cnt].feedsInfo = new FeedInfo[_FeedsId_size];
-        cout << "Feed name: " << medidoresInfo[cnt].name << " - Feed Length: " << _FeedsId_size << endl;
-
+        
         for (int i = 0; i < _FeedsId_size; i++) {
             medidoresInfo[cnt].feedsInfo[i].feedId = to_string(_element_value[1][i]);
-            if (medidoresInfo[cnt].feedsInfo[i].feedId != "24134")
+            if (medidoresInfo[cnt].feedsInfo[i].feedId != "309")
                 continue;
             medidoresInfo[cnt].feedsInfo[i].lastDatMetaIndex = GetLastMetaDatIndex(&medidoresInfo[cnt].feedsInfo[i].feedId);
             medidoresInfo[cnt].feedsInfo[i].nextTimestamp = GetLastTimestamp(&medidoresInfo[cnt].feedsInfo[i].feedId, &medidoresInfo[cnt].feedsInfo[i].lastDatMetaIndex) + NextMetaInterval;
+
+            cout << "Last Index: " << medidoresInfo[cnt].feedsInfo[i].lastDatMetaIndex << endl;
+            cout << "NextTimestamp: " << medidoresInfo[cnt].feedsInfo[i].nextTimestamp << endl;
         }
         ++cnt;
     }
@@ -99,9 +101,23 @@ unsigned int GetDatNPoints(const string* FeedId, const string* DatIndex)
 {
     const string Path = FeedsDB_PATH + *FeedId + "\\" + *FeedId + ".dat." + *DatIndex;
     ifstream readdat(Path, ifstream::binary);
-    unsigned long npoints = GetFileSize(&readdat) / FLOATSIZE;
+    unsigned npoints = GetFileSize(&readdat) / FLOATSIZE;
+    cout << "Npoints size function: " << npoints << endl;
 
     readdat.close();
     return npoints;
 }
 
+void ReadDat(const string* FeedId, const string* DatIndex)
+{
+    const string Path = FeedsDB_PATH + *FeedId + "\\" + *FeedId + ".dat." + *DatIndex;
+    ifstream readmeta(Path, ifstream::binary);
+
+    for (int i = 1; i < GetDatNPoints(FeedId, DatIndex) + 1; ++i)
+    {
+        float value = 0;
+        readmeta.seekg(i * FLOATSIZE, ifstream::beg);
+        readmeta.read(reinterpret_cast<char*>(&value), FLOATSIZE);
+        cout << value << endl;
+    }
+}
