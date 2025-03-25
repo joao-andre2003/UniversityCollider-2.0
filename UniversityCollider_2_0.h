@@ -8,8 +8,8 @@
 #define INTSIZE sizeof(int)
 #define FLOATSIZE sizeof(float)
 #define NextMetaInterval 604800 // -> 1 semana em segundos
-#define InactiveTimeLimit 3600 // -> 1 hora em segundos
-#define CycleInterval 10 // -> intervalo de amostragem em segundos
+#define CycleInterval 60 // -> intervalo de amostragem em segundos
+#define InactiveNPointLimit (3600 / CycleInterval) // -> 1 hora em segundos
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -34,8 +34,9 @@ bool ReadMultiMedidor(const char* Server_IP, bool* IsHarmonico, float*& data, un
 std::string GetLastMetaDatIndex(const std::string* FeedId);
 unsigned int GetLastTimestamp(const std::string* FeedId, const std::string* LastMetaNumber);
 unsigned int GetDatNPoints(const std::string* FeedId, const std::string* LastDatIndex);
+void ReadDat(const std::string* FeedId, const std::string* DatIndex);
 
-std::string AddNewMeta(const std::string* FeedId, const std::string LastMetaIndex, const unsigned* Timestamp);
+std::string AddNewMeta(const std::string* FeedId, const std::string LastMetaIndex, unsigned Timestamp);
 void AddNewDat(const std::string* FeedId, const std::string* LastDatIndex);
 void AddNPoint(const std::string* FeedId, const std::string* LastDatIndex, float* Value, unsigned short Value_size = 1);
 #endif

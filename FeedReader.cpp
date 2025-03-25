@@ -37,9 +37,6 @@ void GetInfoMedidores(Medidor* medidoresInfo, const string file)
                 continue;
             medidoresInfo[cnt].feedsInfo[i].lastDatMetaIndex = GetLastMetaDatIndex(&medidoresInfo[cnt].feedsInfo[i].feedId);
             medidoresInfo[cnt].feedsInfo[i].nextTimestamp = GetLastTimestamp(&medidoresInfo[cnt].feedsInfo[i].feedId, &medidoresInfo[cnt].feedsInfo[i].lastDatMetaIndex) + NextMetaInterval;
-
-            cout << "Last Index: " << medidoresInfo[cnt].feedsInfo[i].lastDatMetaIndex << endl;
-            cout << "NextTimestamp: " << medidoresInfo[cnt].feedsInfo[i].nextTimestamp << endl;
         }
         ++cnt;
     }
@@ -89,7 +86,7 @@ unsigned int GetLastTimestamp(const string* FeedId, const string* LastMetaIndex)
         return 0;
     }
 
-    unsigned int lastTimestamp;
+    unsigned lastTimestamp = 0;
     readmeta.seekg(3 * INTSIZE, ifstream::beg);
     readmeta.read(reinterpret_cast<char*>(&lastTimestamp), INTSIZE);
 
@@ -102,7 +99,6 @@ unsigned int GetDatNPoints(const string* FeedId, const string* DatIndex)
     const string Path = FeedsDB_PATH + *FeedId + "\\" + *FeedId + ".dat." + *DatIndex;
     ifstream readdat(Path, ifstream::binary);
     unsigned npoints = GetFileSize(&readdat) / FLOATSIZE;
-    cout << "Npoints size function: " << npoints << endl;
 
     readdat.close();
     return npoints;

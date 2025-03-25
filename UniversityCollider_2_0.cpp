@@ -7,18 +7,15 @@ using namespace std;
 
 void NewDatMeta(FeedInfo* feedInfo, const unsigned* Timestamp)
 {
-    cout << "Novo meta e dat" << endl;
-    feedInfo->lastDatMetaIndex = AddNewMeta(&feedInfo->feedId, GetLastMetaDatIndex(&feedInfo->feedId), Timestamp);
+    feedInfo->lastDatMetaIndex = AddNewMeta(&feedInfo->feedId, GetLastMetaDatIndex(&feedInfo->feedId), *Timestamp);
     feedInfo->nextTimestamp = *Timestamp + NextMetaInterval;
     AddNewDat(&feedInfo->feedId, &feedInfo->lastDatMetaIndex);
-
-    cout << "Last Index: " << feedInfo->lastDatMetaIndex << endl;
-    cout << "NextTimestamp: " << feedInfo->nextTimestamp << endl;
 }
 
 int main()
 {
     SetDataSize();
+
     const unsigned short MedidoresInfo_size = GetJsonLength(MagicaGrande_PATH);
     Medidor* medidoresInfo = new Medidor[MedidoresInfo_size];
     GetInfoMedidores(medidoresInfo, MagicaGrande_PATH);
@@ -28,18 +25,15 @@ int main()
     while (true)
     {
         clock_t lastCycle_time = clock();
-
         for (int i = 0; i < MedidoresInfo_size; ++i)
         {
             if (medidoresInfo[i].name != "QDAC-FARMACO-NOVO-3PAV")
                 continue;
-
-            cout << medidoresInfo[i].name << endl;
             
             float* data = 0x0;
             unsigned short data_size = 0;
             unsigned CurrentTimestamp = time(NULL);
-            cout << "CurrentTimestamp: " << CurrentTimestamp << endl;
+
             if (ReadMultiMedidor(&medidoresInfo[i].ipAdress[0], &medidoresInfo[i].isHarmonico, data, &data_size) || teste++ == 0) {
                 medidoresInfo[i].isInactive = true;
                 cout << " - " << medidoresInfo[i].name << endl;
@@ -51,18 +45,14 @@ int main()
 
                 for (unsigned short j = 0; j < data_size; ++j)
                 {
-                    if (medidoresInfo[i].feedsInfo[j].feedId != "309")
-                        continue;
-                    cout << "Complementando data faltante: " << endl;
                     int npoints_missing = (CurrentTimestamp - medidoresInfo[i].feedsInfo[j].nextTimestamp + NextMetaInterval) / CycleInterval - GetDatNPoints(&medidoresInfo[i].feedsInfo[j].feedId, &medidoresInfo[i].feedsInfo[j].lastDatMetaIndex) - 1;
-                    cout << "MISSING DATA - quantidade de NPoints: " << npoints_missing << endl;
-
-                    if (npoints_missing > InactiveTimeLimit) {
+                    
+                    if (npoints_missing > InactiveNPointLimit) {
                         NewDatMeta(&medidoresInfo[i].feedsInfo[j], &CurrentTimestamp);
                         continue;
                     }
-                    float* missing_data = new float[npoints_missing];
 
+                    float* missing_data = new float[npoints_missing];
                     for (unsigned short cnt = 0; cnt < npoints_missing; ++cnt)
                         missing_data[cnt] = NAN;
 
@@ -73,11 +63,6 @@ int main()
 
             for (unsigned short j = 0; j < data_size; ++j)
             {
-                if (medidoresInfo[i].feedsInfo[j].feedId != "309")
-                    continue;
-
-                cout << medidoresInfo[i].feedsInfo[j].feedId << " -> " << data[j] << endl;
-
                 if (medidoresInfo[i].feedsInfo[j].nextTimestamp < CurrentTimestamp)
                     NewDatMeta(&medidoresInfo[i].feedsInfo[j], &CurrentTimestamp);
 
@@ -89,8 +74,6 @@ int main()
 
         while (float(clock() - lastCycle_time) / CLOCKS_PER_SEC - CycleInterval < 0)
             continue;
-
-        cout << (float(clock() - lastCycle_time) / CLOCKS_PER_SEC) << endl;
     }
     return 0;
 }
