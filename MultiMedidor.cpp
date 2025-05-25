@@ -1,5 +1,6 @@
-/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: João André Agustinho da Silva */
+ï»¿/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Joï¿½o Andrï¿½ Agustinho da Silva */
 #include "UniversityCollider_2_0.h"
+#include <cstring>
 
 extern "C" {
 #include "libmodbus/modbus.h"
@@ -15,7 +16,7 @@ const unsigned short RgtrsInfo[][2] = { // [0] -> register address (0 to 65535)
     {30201 - 30001, 16},
 };
 const unsigned short RgtrsInfo_TwoBytes[][2] = {
-    {33001 - 30001, 12} // Esse registrador é diferente dos demais, seus dados são de 2 byte apenas, não precisando juntar com outros bytes (O código antigo tratava desse jeito, mas não sei se está certo, pois lança valores muito discrepantes dos demais)
+    {33001 - 30001, 12} // Esse registrador ï¿½ diferente dos demais, seus dados sï¿½o de 2 byte apenas, nï¿½o precisando juntar com outros bytes (O cï¿½digo antigo tratava desse jeito, mas nï¿½o sei se estï¿½ certo, pois lanï¿½a valores muito discrepantes dos demais)
 };
 const unsigned short RgtrsInfo_Harmonico[][2] = { // [0] -> register address (0 to 65535)
     {34001 - 30001, 80}, // U1                    // [1] -> number of registers to read (1 to 125)
@@ -47,13 +48,13 @@ void SetDataSize()
 static float GetFloatFromBytes(unsigned short& TwoBytes_a, unsigned short& TwoBytes_b)
 {
     char FourBytesArray[4] = { // array de bytes
-        TwoBytes_a >> 8,// 8 é a quantidade de bits em um char
+        TwoBytes_a >> 8,// 8 ï¿½ a quantidade de bits em um char
         TwoBytes_a & 0xFF,
         TwoBytes_b >> 8,
         TwoBytes_b & 0xFF
     };
     float f = 0.0f;
-    memcpy(&f, &FourBytesArray, sizeof(f)); // a função memcpy lê o "source" como um "big-endian" caso ele for maior que 1 byte, então é melhor usar o método do array de bytes (buffer)
+    memcpy(&f, &FourBytesArray, sizeof(f)); // a funï¿½ï¿½o memcpy lï¿½ o "source" como um "big-endian" caso ele for maior que 1 byte, entï¿½o ï¿½ melhor usar o mï¿½todo do array de bytes (buffer)
     return f;
 }
 
@@ -103,6 +104,7 @@ bool ReadMultiMedidor(const char* Server_IP, bool* IsHarmonico, float*& data, un
     Read2BytesRegistor(ctx, RgtrsInfo_TwoBytes, data, &dataCnt);
     if (*IsHarmonico) Read4BytesRegistors(ctx, RgtrsInfo_Harmonico, RgtrsInfo_Harmonico_Size, data, &dataCnt);
 
+    modbus_close(ctx);
     modbus_free(ctx);
     return 0;
 }

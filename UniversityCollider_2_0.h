@@ -1,10 +1,11 @@
-/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: João André Agustinho da Silva */
+ï»¿/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Joï¿½o Andrï¿½ Agustinho da Silva */
 #pragma once
 
 #ifndef UNIVERSITYCOLLIDER_2_0
 #define UNIVERSITYCOLLIDER_2_0
-#define _FeedsDB_PATH "C:\\Users\\joaoa\\OneDrive\\Área de Trabalho\\EEMEPP\\UniversityCollider_2_0-VS\\"
-#define FeedsDB_PATH "C:\\Users\\DELT\\Desktop\\labgd\\UniversityCollider_2_0-VS\\"
+#define _FeedsDB_PATH "C:\\Users\\joaoa\\OneDrive\\ï¿½rea de Trabalho\\EEMEPP\\UniversityCollider_2_0-VS\\"
+#define __FeedsDB_PATH "C:\\Users\\DELT\\Desktop\\labgd\\UniversityCollider_2_0-VS\\"
+#define FeedsDB_PATH "/var/lib/phpfinamultiple/"
 #define INTSIZE sizeof(int)
 #define FLOATSIZE sizeof(float)
 #define NextMetaInterval 604800 // -> 1 semana em segundos
@@ -14,29 +15,33 @@
 #include <string>
 #include <fstream>
 
-struct FeedInfo {
-    std::string feedId = "";
-    std::string lastDatMetaIndex = "";
-    unsigned int nextTimestamp = 0;
-};
-struct Medidor {
-    std::string name = "";
-    std::string ipAdress = "";
-    FeedInfo* feedsInfo = 0x0;
-    bool isHarmonico = 0;
-    bool isInactive = 0;
+class Medidor {
+public:
+	struct FeedInfo {
+		std::string feedId = "";
+		std::string lastDatMetaIndex = "";
+		unsigned int nextTimestamp = 0;
+	};
+	std::string name = "";
+	std::string ipAdress = "";
+	FeedInfo* feedsInfo = nullptr;
+	bool isHarmonico = 0;
+	bool isInactive = 1;
+
+	void Update(unsigned CurrentTimestamp);
 };
 
 void SetDataSize();
 unsigned GetJsonLength(std::string file);
 void GetInfoMedidores(Medidor* medidoresInfo, std::string file);
 bool ReadMultiMedidor(const char* Server_IP, bool* IsHarmonico, float*& data, unsigned short* Data_size);
+
 std::string GetLastMetaDatIndex(const std::string* FeedId);
 unsigned int GetLastTimestamp(const std::string* FeedId, const std::string* LastMetaNumber);
 unsigned int GetDatNPoints(const std::string* FeedId, const std::string* LastDatIndex);
-void ReadDat(const std::string* FeedId, const std::string* DatIndex);
+//void ReadDat(const std::string* FeedId, const std::string* DatIndex);
 
-std::string AddNewMeta(const std::string* FeedId, const std::string LastMetaIndex, unsigned Timestamp);
-void AddNewDat(const std::string* FeedId, const std::string* LastDatIndex);
+void NewDatMeta(Medidor::FeedInfo* feedInfo, unsigned* Timestamp);
 void AddNPoint(const std::string* FeedId, const std::string* LastDatIndex, float* Value, unsigned short Value_size = 1);
+void UpdateLast(const std::string* FeedId, float* Value, unsigned* Timestamp);
 #endif

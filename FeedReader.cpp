@@ -1,5 +1,6 @@
-/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: João André Agustinho da Silva */
+ï»¿/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Joï¿½o Andrï¿½ Agustinho da Silva */
 #include "dirent.h"
+#include <iostream>
 #include "nlohmann/json.hpp"
 #include "UniversityCollider_2_0.h"
 
@@ -16,6 +17,7 @@ unsigned GetJsonLength(const string file)
 
 void GetInfoMedidores(Medidor* medidoresInfo, const string file)
 {
+    cout << "GetInfoMedidores" << endl;
     ifstream f(file);
     json data = json::parse(f);
 
@@ -23,18 +25,20 @@ void GetInfoMedidores(Medidor* medidoresInfo, const string file)
     for (json::iterator element = data.begin(); element != data.end(); ++element)
     {
         json::value_type& _element_value = element.value();
-
         medidoresInfo[cnt].name = element.key();
+        cout << "Medidor:" << cnt << endl;
+        if ((medidoresInfo[cnt].name != "MultiMedidorPL") && (medidoresInfo[cnt].name != "MultiMedidorPK"))
+            continue;
+        cout << "PL ou PK" << endl;
         medidoresInfo[cnt].ipAdress = _element_value[0];
         medidoresInfo[cnt].isHarmonico = _element_value.size() > 2;
 
         const int _FeedsId_size = _element_value[1].size();
-        medidoresInfo[cnt].feedsInfo = new FeedInfo[_FeedsId_size];
-        
+        medidoresInfo[cnt].feedsInfo = new Medidor::FeedInfo[_FeedsId_size];
+        cout << "Medidor:" << medidoresInfo[cnt].name << " Size:" << _FeedsId_size << endl;
         for (int i = 0; i < _FeedsId_size; i++) {
+            cout << i << " " << flush;
             medidoresInfo[cnt].feedsInfo[i].feedId = to_string(_element_value[1][i]);
-            if (medidoresInfo[cnt].feedsInfo[i].feedId != "309")
-                continue;
             medidoresInfo[cnt].feedsInfo[i].lastDatMetaIndex = GetLastMetaDatIndex(&medidoresInfo[cnt].feedsInfo[i].feedId);
             medidoresInfo[cnt].feedsInfo[i].nextTimestamp = GetLastTimestamp(&medidoresInfo[cnt].feedsInfo[i].feedId, &medidoresInfo[cnt].feedsInfo[i].lastDatMetaIndex) + NextMetaInterval;
         }
@@ -55,12 +59,8 @@ string GetLastMetaDatIndex(const string* FeedId)
     while ((entry = readdir(dir)) != NULL)
         ++lastIndex;
 
-    if (closedir(dir) == -1) {
-        cout << "ERRO ao fechar diretorio";
-        return "";
-    }
-
-    lastIndex = (lastIndex - 4) / 2;
+    closedir(dir);
+    lastIndex = (lastIndex - 5) / 2;
     return to_string(lastIndex);
 }
 
@@ -78,7 +78,7 @@ unsigned long GetFileSize(ifstream* file)
 
 unsigned int GetLastTimestamp(const string* FeedId, const string* LastMetaIndex)
 {
-    const string Path = FeedsDB_PATH + *FeedId + "\\" + *FeedId + ".meta." + *LastMetaIndex;
+    const string Path = FeedsDB_PATH + *FeedId + "/" + *FeedId + ".meta." + *LastMetaIndex;
     ifstream readmeta(Path, ifstream::binary);
 
     if (GetFileSize(&readmeta) != 16) {
@@ -96,20 +96,20 @@ unsigned int GetLastTimestamp(const string* FeedId, const string* LastMetaIndex)
 
 unsigned int GetDatNPoints(const string* FeedId, const string* DatIndex)
 {
-    const string Path = FeedsDB_PATH + *FeedId + "\\" + *FeedId + ".dat." + *DatIndex;
+    const string Path = FeedsDB_PATH + *FeedId + "/" + *FeedId + ".dat." + *DatIndex;
     ifstream readdat(Path, ifstream::binary);
     unsigned npoints = GetFileSize(&readdat) / FLOATSIZE;
 
     readdat.close();
     return npoints;
 }
-
+/*
 void ReadDat(const string* FeedId, const string* DatIndex)
 {
-    const string Path = FeedsDB_PATH + *FeedId + "\\" + *FeedId + ".dat." + *DatIndex;
+    const string Path = FeedsDB_PATH + *FeedId + "/" + *FeedId + ".dat." + *DatIndex;
     ifstream readmeta(Path, ifstream::binary);
 
-    for (int i = 1; i < GetDatNPoints(FeedId, DatIndex) + 1; ++i)
+    for (unsigned int i = 1; i < ( GetDatNPoints(FeedId, DatIndex) + 1 ); ++i)
     {
         float value = 0;
         readmeta.seekg(i * FLOATSIZE, ifstream::beg);
@@ -117,3 +117,4 @@ void ReadDat(const string* FeedId, const string* DatIndex)
         cout << value << endl;
     }
 }
+*/
