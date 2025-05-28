@@ -2,7 +2,6 @@
 #include <ctime>
 #include <chrono>
 #include <thread>
-#include <cmath>
 #include <vector>
 //#include <cppconn/driver.h>
 //#include <cppconn/statement.h>
@@ -12,8 +11,6 @@
 #define MagicaGrande_PATH "MagicaGrande.json"
 using namespace std;
 
-void teste() {}
-
 int main()
 {
     SetDataSize();
@@ -21,7 +18,7 @@ int main()
     Medidor* medidoresInfo = new Medidor[MedidoresInfo_size];
     GetInfoMedidores(medidoresInfo, MagicaGrande_PATH);
 
-    const chrono::milliseconds CycleInterval_s(CycleInterval);
+    const chrono::seconds CycleInterval_s(CycleInterval);
     chrono::duration<double> cycleInterval_offset = 0s;
 
     while (true)
@@ -39,10 +36,14 @@ int main()
             if (t.joinable())
                 t.join();
 
+        chrono::duration<double> duration = chrono::high_resolution_clock::now() - StartTime;
+        cout << "Tempo da Multi-Thread: - " << duration << endl;
+
         const auto NextWakeUpTime = StartTime + CycleInterval_s - cycleInterval_offset;
         this_thread::sleep_until(NextWakeUpTime);
 
         cycleInterval_offset = chrono::high_resolution_clock::now() - StartTime - CycleInterval_s;
+        cout << "Offset de tempo de ciclo - " << cycleInterval_offset << endl;
     }
     return 0;
 }

@@ -1,6 +1,6 @@
 ﻿/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
 #include "UniversityCollider_2_0.h"
-#include <cstring>
+//#include <cstring>
 
 extern "C" {
 #include "libmodbus/modbus.h"
@@ -54,7 +54,7 @@ static float GetFloatFromBytes(unsigned short& TwoBytes_a, unsigned short& TwoBy
         TwoBytes_b & 0xFF
     };
     float f = 0.0f;
-    memcpy(&f, &FourBytesArray, sizeof(f)); // a fun��o memcpy l� o "source" como um "big-endian" caso ele for maior que 1 byte, ent�o � melhor usar o m�todo do array de bytes (buffer)
+    memcpy(&f, &FourBytesArray, FLOATSIZE); // a fun��o memcpy l� o "source" como um "big-endian" caso ele for maior que 1 byte, ent�o � melhor usar o m�todo do array de bytes (buffer)
     return f;
 }
 

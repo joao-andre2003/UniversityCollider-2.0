@@ -1,6 +1,5 @@
 ﻿/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
 #include "dirent.h"
-#include <iostream>
 #include "nlohmann/json.hpp"
 #include "UniversityCollider_2_0.h"
 
