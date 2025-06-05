@@ -1,6 +1,6 @@
 # Projeto EEMEPP, UFPR - Autor: João André Agustinho da Silva 
 
-# Descrição: 
+# Descrição: < - - EM DESENVOLVIMENTO - - >
 
 import json
 from pyModbusTCP.client import ModbusClient
