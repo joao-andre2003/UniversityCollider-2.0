@@ -16,7 +16,7 @@ from office365.runtime.auth.user_credential import UserCredential
 from office365.sharepoint.client_context import ClientContext
 from getpass import getpass
 
-SERVER = ["https://canopus.eletrica.ufpr.br", "dcb98cfc2d842511f0b26d49ce1dd32f"];
+SERVER = ["https://canopus.eletrica.ufpr.br", "API_KEY"];
 
 def main():
     #region - - - - - - - - - Login Sharepoint e Configuração - - - - - - - - - 
