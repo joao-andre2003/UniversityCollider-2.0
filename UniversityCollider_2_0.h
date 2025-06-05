@@ -1,19 +1,17 @@
-﻿/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
+/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
 #pragma once
 
 #ifndef UNIVERSITYCOLLIDER_2_0
 #define UNIVERSITYCOLLIDER_2_0
-#define _FeedsDB_PATH "C:\\Users\\joaoa\\OneDrive\\�rea de Trabalho\\EEMEPP\\UniversityCollider_2_0-VS\\"
-#define __FeedsDB_PATH "C:\\Users\\DELT\\Desktop\\labgd\\UniversityCollider_2_0-VS\\"
-#define FeedsDB_PATH "/var/lib/phpfinamultiple/"
+
+#include <string>
+#define FeedsDB_PATH "/media/canopus4/phpfinamultiple/"
 #define INTSIZE sizeof(int)
 #define FLOATSIZE sizeof(float)
+#define LONGLONGSIZE sizeof(unsigned long long)
 #define NextMetaInterval 604800 // -> 1 semana em segundos
 #define CycleInterval 60 // -> intervalo de amostragem em segundos
 #define InactiveNPointLimit (3600 / CycleInterval) // -> 1 hora em segundos
-#include <iostream>
-#include <string>
-#include <fstream>
 
 class Medidor {
 public:
@@ -28,10 +26,22 @@ public:
 	bool isHarmonico = 0;
 	bool isInactive = 1;
 
-	void Update(unsigned CurrentTimestamp);
+	void Update(unsigned* CurrentTimestamp);
+};
+
+enum LogType {
+	Debug,
+	Warning,
+	Error
+};
+const std::string LogTypeString[] = { 
+	"DEBUG", 
+	"\033[1;33mWARNING\033[0m",
+	"\033[1;31mERROR\033[0m"
 };
 
 void SetDataSize();
+void log(LogType logtype, std::string message);
 unsigned GetJsonLength(std::string file);
 void GetInfoMedidores(Medidor* medidoresInfo, std::string file);
 bool ReadMultiMedidor(const char* Server_IP, bool* IsHarmonico, float*& data, unsigned short* Data_size);

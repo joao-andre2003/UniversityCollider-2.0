@@ -1,4 +1,5 @@
-﻿/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
+/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
+#include <iostream>
 #include <ctime>
 #include <chrono>
 #include <thread>
@@ -9,7 +10,13 @@
 #include "UniversityCollider_2_0.h"
 
 #define MagicaGrande_PATH "MagicaGrande.json"
+#define LOG_TYPE Debug // -> [0] para Debug e demais, [1] para Warning e Error, [2] somente pra Error, [>2] para desativar log
 using namespace std;
+
+void log(LogType logtype, string message) {
+    if (logtype >= LOG_TYPE)
+        cout << "[" << LogTypeString[logtype] << "] " << message << endl;
+}
 
 int main()
 {
@@ -28,8 +35,8 @@ int main()
         vector<thread> threads;
         
         for (int i = 0; i < MedidoresInfo_size; ++i)
-            threads.emplace_back([&medidor = medidoresInfo[i], ts = CurrentTimestamp]() {
-                medidor.Update(ts);
+            threads.emplace_back([&medidor = medidoresInfo[i], &ts = CurrentTimestamp]() {
+                medidor.Update(&ts);
             });
 
         for (thread& t : threads)
@@ -37,13 +44,12 @@ int main()
                 t.join();
 
         chrono::duration<double> duration = chrono::high_resolution_clock::now() - StartTime;
-        cout << "Tempo da Multi-Thread: - " << duration << endl;
+        log(Debug, ("Tempo da Multi-Thread: - " + to_string(duration.count())));
 
         const auto NextWakeUpTime = StartTime + CycleInterval_s - cycleInterval_offset;
         this_thread::sleep_until(NextWakeUpTime);
 
         cycleInterval_offset = chrono::high_resolution_clock::now() - StartTime - CycleInterval_s;
-        cout << "Offset de tempo de ciclo - " << cycleInterval_offset << endl;
     }
     return 0;
 }

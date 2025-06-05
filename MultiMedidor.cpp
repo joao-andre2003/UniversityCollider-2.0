@@ -1,6 +1,6 @@
-﻿/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
+/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
 #include "UniversityCollider_2_0.h"
-//#include <cstring>
+#include <cstring>
 
 extern "C" {
 #include "libmodbus/modbus.h"
@@ -91,7 +91,7 @@ bool ReadMultiMedidor(const char* Server_IP, bool* IsHarmonico, float*& data, un
     ctx = modbus_new_tcp(Server_IP, PORT);
 
     if (modbus_connect(ctx) == -1) {
-        cout << "ERRO - " << modbus_strerror(errno);
+        log(Warning, "Conexão ModBus falhou: " + (string)(modbus_strerror(errno)));
         modbus_free(ctx);
         return 1;
     }

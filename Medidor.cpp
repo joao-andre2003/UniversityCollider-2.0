@@ -1,21 +1,17 @@
-﻿/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
+/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
 #include <cmath>
 #include "UniversityCollider_2_0.h"
 using namespace std;
 
-void Medidor::Update(unsigned CurrentTimestamp)
+void Medidor::Update(unsigned* CurrentTimestamp)
 {
-    if ((name != "MultiMedidorPL") && (name != "MultiMedidorPK"))
-        return;
-
-    cout << "Nova Iteracao - " << name << endl;
-
+    log(Debug, ("Nova Iteração - " + name));
     float* data = nullptr;
     unsigned short data_size = 0;
 
     if (ReadMultiMedidor(&ipAdress[0], &isHarmonico, data, &data_size)) {
         isInactive = true;
-        cout << " - " << name << endl;
+        log(Warning, ("Conexão Modbus falha em " + name));
         delete[] data;
         return;
     }
@@ -25,11 +21,11 @@ void Medidor::Update(unsigned CurrentTimestamp)
 
         for (unsigned short j = 0; j < data_size; ++j)
         {
-            int npoints_missing = (CurrentTimestamp - feedsInfo[j].nextTimestamp + NextMetaInterval) / CycleInterval - GetDatNPoints(&feedsInfo[j].feedId, &feedsInfo[j].lastDatMetaIndex);
-            cout << "NPoints faltando: " << npoints_missing << endl;
+            int npoints_missing = (*CurrentTimestamp - feedsInfo[j].nextTimestamp + NextMetaInterval) / CycleInterval - GetDatNPoints(&feedsInfo[j].feedId, &feedsInfo[j].lastDatMetaIndex);
+            log(Debug, ("Medidor " + name +" - NPoints faltando: " + to_string(npoints_missing)));
 
             if (npoints_missing > InactiveNPointLimit) {
-                NewDatMeta(&feedsInfo[j], &CurrentTimestamp);
+                NewDatMeta(&feedsInfo[j], CurrentTimestamp);
                 continue;
             }
             if (npoints_missing < 1) {
@@ -48,11 +44,11 @@ void Medidor::Update(unsigned CurrentTimestamp)
 
     for (unsigned short j = 0; j < data_size; ++j)
     {
-        if (feedsInfo[j].nextTimestamp < CurrentTimestamp)
-            NewDatMeta(&feedsInfo[j], &CurrentTimestamp);
+        if (feedsInfo[j].nextTimestamp < *CurrentTimestamp)
+            NewDatMeta(&feedsInfo[j], CurrentTimestamp);
 
         AddNPoint(&feedsInfo[j].feedId, &feedsInfo[j].lastDatMetaIndex, &data[j]);
-        UpdateLast(&feedsInfo[j].feedId, &data[j], &CurrentTimestamp);
+        UpdateLast(&feedsInfo[j].feedId, &data[j], CurrentTimestamp);
     }
     delete[] data;
 }

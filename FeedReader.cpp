@@ -1,5 +1,8 @@
-﻿/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
-#include "dirent.h"
+/* Projeto University Collider 2.0, EEMEPP, UFPR - Autor: Jo�o Andr� Agustinho da Silva */
+#include <fstream>
+#include <thread>
+#include <vector>
+#include <dirent.h>
 #include "nlohmann/json.hpp"
 #include "UniversityCollider_2_0.h"
 
@@ -14,35 +17,37 @@ unsigned GetJsonLength(const string file)
     return length;
 }
 
+void SetUpMedidor(Medidor* medidor, json::value_type& elementValue, string name)
+{
+    log(Debug, ("Lendo medidor do Magica Grande - " + name));
+    medidor->name = name;
+    medidor->ipAdress = elementValue[0];
+    medidor->isHarmonico = elementValue.size() > 2;
+
+    const int _FeedsId_size = elementValue[1].size();
+    medidor->feedsInfo = new Medidor::FeedInfo[_FeedsId_size];
+    for (int i = 0; i < _FeedsId_size; i++) {
+        medidor->feedsInfo[i].feedId = to_string(elementValue[1][i]);
+        medidor->feedsInfo[i].lastDatMetaIndex = GetLastMetaDatIndex(&medidor->feedsInfo[i].feedId);
+        medidor->feedsInfo[i].nextTimestamp = GetLastTimestamp(&medidor->feedsInfo[i].feedId, &medidor->feedsInfo[i].lastDatMetaIndex) + NextMetaInterval;
+    }
+}
+
 void GetInfoMedidores(Medidor* medidoresInfo, const string file)
 {
-    cout << "GetInfoMedidores" << endl;
     ifstream f(file);
     json data = json::parse(f);
 
+    vector<thread> threads;
     int cnt = 0;
     for (json::iterator element = data.begin(); element != data.end(); ++element)
-    {
-        json::value_type& _element_value = element.value();
-        medidoresInfo[cnt].name = element.key();
-        cout << "Medidor:" << cnt << endl;
-        if ((medidoresInfo[cnt].name != "MultiMedidorPL") && (medidoresInfo[cnt].name != "MultiMedidorPK"))
-            continue;
-        cout << "PL ou PK" << endl;
-        medidoresInfo[cnt].ipAdress = _element_value[0];
-        medidoresInfo[cnt].isHarmonico = _element_value.size() > 2;
+        threads.emplace_back(SetUpMedidor, &medidoresInfo[cnt++], element.value(), element.key());
 
-        const int _FeedsId_size = _element_value[1].size();
-        medidoresInfo[cnt].feedsInfo = new Medidor::FeedInfo[_FeedsId_size];
-        cout << "Medidor:" << medidoresInfo[cnt].name << " Size:" << _FeedsId_size << endl;
-        for (int i = 0; i < _FeedsId_size; i++) {
-            cout << i << " " << flush;
-            medidoresInfo[cnt].feedsInfo[i].feedId = to_string(_element_value[1][i]);
-            medidoresInfo[cnt].feedsInfo[i].lastDatMetaIndex = GetLastMetaDatIndex(&medidoresInfo[cnt].feedsInfo[i].feedId);
-            medidoresInfo[cnt].feedsInfo[i].nextTimestamp = GetLastTimestamp(&medidoresInfo[cnt].feedsInfo[i].feedId, &medidoresInfo[cnt].feedsInfo[i].lastDatMetaIndex) + NextMetaInterval;
-        }
-        ++cnt;
-    }
+    for (thread& t : threads)
+        if (t.joinable())
+            t.join();
+
+    log(Debug, ("Leitura Magica Grande concluída."));
     f.close();
 }
 
@@ -80,12 +85,7 @@ unsigned int GetLastTimestamp(const string* FeedId, const string* LastMetaIndex)
     const string Path = FeedsDB_PATH + *FeedId + "/" + *FeedId + ".meta." + *LastMetaIndex;
     ifstream readmeta(Path, ifstream::binary);
 
-    if (GetFileSize(&readmeta) != 16) {
-        cout << "ERRO - Timestamp: Arquivo de tamanho invalido. Sem apoio para valores em milisegundos";
-        return 0;
-    }
-
-    unsigned lastTimestamp = 0;
+    unsigned long long lastTimestamp = 0;
     readmeta.seekg(3 * INTSIZE, ifstream::beg);
     readmeta.read(reinterpret_cast<char*>(&lastTimestamp), INTSIZE);
 
@@ -103,6 +103,23 @@ unsigned int GetDatNPoints(const string* FeedId, const string* DatIndex)
     return npoints;
 }
 /*
+bool GetMetaModo(const string* Path, unsigned long MetaFileSize, unsigned char* getTimestampSize, unsigned short* getTimestampUnit)
+{
+    *getTimestampSize = INTSIZE;
+    *getTimestampUnit = 1;
+
+    if (MetaFileSize == 25) {
+        log(Warning, ("Timestamp em milissegundos - " + *Path));
+        *getTimestampSize = LONGLONGSIZE;
+        *getTimestampUnit = 1000;
+    }
+    else if (MetaFileSize != 16) {
+        log(Error, ("Arquivo Meta de tamanho Inválido - " + *Path));
+        return 1;
+    }
+    return 0;
+}
+
 void ReadDat(const string* FeedId, const string* DatIndex)
 {
     const string Path = FeedsDB_PATH + *FeedId + "/" + *FeedId + ".dat." + *DatIndex;
